@@ -1,4 +1,4 @@
-## This is aiMUD, a AI-driven interactive fiction game engine
+## This is aiMUD, an AI-driven interactive fiction game engine
 
 This project combines natural language processing and a keyword-based system to create an interactive fiction game experience. The game world is dynamically managed by an AI narrator.
 
