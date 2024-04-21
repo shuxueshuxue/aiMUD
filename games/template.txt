@@ -1,0 +1,10 @@
+{
+    "overall_context": "Zombies are attacking the city.",
+    "keywords": {
+        "toothbrush": "A powerful weapon able to convert zombie back to human."
+    },
+    "progress": "We are surrounded by zombies.",
+    "text_window_size": 1000,
+	"word_search_depth": 2
+}
+

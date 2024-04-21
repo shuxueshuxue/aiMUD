@@ -1,0 +1,13 @@
+
+{
+    "overall_context": "This is WordCraft, the text-game-version of Minecraft.",
+    "keywords": {
+        "night": "Enemies will be generated in the night according to the current difficulty.",
+        "difficulty": "Easy.",
+        "level": "The current player level is: 1."
+    },
+    "progress": "For the first time, adventurers achieved this new land.",
+    "text_window_size": 1000,
+    "word_search_depth": 2
+}
+
