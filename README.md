@@ -1,5 +1,3 @@
-#class #game 
-
 # AIMUD，一个由 AI 驱动的互动小说游戏引擎
 
 ![|800](assets/seriousGameClassFinal.png)
