@@ -1,5 +1,6 @@
 import networkx as nx
 import json
+import re
 from llm import callGPT
 
 
@@ -68,6 +69,48 @@ def spot_keywords(text: str, keywords: dict, depth: int = 1, graph=None) -> set:
     return found_keys
 
 
+def extract_json_from_response(response: str) -> dict:
+    """
+    Extract JSON from a response that might contain markdown code blocks or extra text.
+
+    Args:
+    response (str): The raw response from the AI
+
+    Returns:
+    dict: Parsed JSON dictionary, or None if parsing fails
+    """
+    # Try to parse directly first
+    try:
+        return json.loads(response)
+    except json.JSONDecodeError:
+        pass
+
+    # Try to find JSON within markdown code blocks
+    json_block_pattern = r'```(?:json)?\s*(\{.*?\})\s*```'
+    match = re.search(json_block_pattern, response, re.DOTALL)
+    if match:
+        try:
+            return json.loads(match.group(1))
+        except json.JSONDecodeError:
+            pass
+
+    # Try to find JSON object anywhere in the response
+    json_pattern = r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}'
+    matches = re.findall(json_pattern, response, re.DOTALL)
+
+    # Try each match until one parses successfully
+    for match in matches:
+        try:
+            parsed = json.loads(match)
+            if isinstance(parsed, dict):  # Ensure it's a dictionary
+                return parsed
+        except json.JSONDecodeError:
+            continue
+
+    # If all else fails, return None
+    return None
+
+
 def extract_keywords(current_keywords: dict, text: str) -> dict:
     """
     Leverages an external GPT model to analyze a text and update the current keywords dictionary based on GPT's response.
@@ -109,12 +152,16 @@ def extract_keywords(current_keywords: dict, text: str) -> dict:
         keyword_model = config['models']['keyword_extraction']
 
         ai_response = callGPT([{'role': 'system', 'content': prompt}], model=keyword_model)
-        # Use json.loads for safer parsing of the response into a dictionary
-        updated_keywords = json.loads(ai_response)
+
+        # Use robust JSON extraction to handle markdown code blocks and extra text
+        updated_keywords = extract_json_from_response(ai_response)
+
+        if updated_keywords is None:
+            print("Parsing error: Could not extract valid JSON from response.")
+            print(f"Raw response: {ai_response[:200]}...")  # Print first 200 chars for debugging
+            return None
+
         return updated_keywords
-    except json.JSONDecodeError:
-        print("Parsing error: The response was not valid JSON.")
-        return None
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         return None
