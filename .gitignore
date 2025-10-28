@@ -1,3 +1,5 @@
 config.json
 *.swp
 tags
+__pycache__/
+*.pyc
