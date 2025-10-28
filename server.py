@@ -89,6 +89,11 @@ def continue_story(user_input, user_name) -> str:
     base_window_size = state.get("text_window_size", 1000)  # Base context window size
     word_search_depth = state.get("word_search_depth", 2)
 
+    # Load model configuration
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+    story_model = config['models']['story_continuation']
+
     # Coefficients for various uses of the window
     coeff_continuation = 1.0
     coeff_keyword_spotting_continuation = 0.5
@@ -109,7 +114,7 @@ def continue_story(user_input, user_name) -> str:
     relevant_keywords = spot_keywords(progress_for_keyword_spotting + " " + user_input, keywords, depth=word_search_depth, graph=keyword_graph)
 
     # Update progress and context using GPT model with filtered keywords
-    new_progress_segment = continueStory(progress_for_continuation, overall_context, user_name, user_input, {k: keywords[k] for k in relevant_keywords if k in keywords})
+    new_progress_segment = continueStory(progress_for_continuation, overall_context, user_name, user_input, {k: keywords[k] for k in relevant_keywords if k in keywords}, model=story_model)
     full_progress += " " + new_progress_segment  # Append new segment to full progress
 
     # Save the full progress back to state

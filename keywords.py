@@ -103,7 +103,12 @@ def extract_keywords(current_keywords: dict, text: str) -> dict:
     
     # Use the existing callGPT function to send the prompt and get the AI's response
     try:
-        ai_response = callGPT([{'role': 'system', 'content': prompt}])
+        # Load model configuration
+        with open('config.json', 'r') as f:
+            config = json.load(f)
+        keyword_model = config['models']['keyword_extraction']
+
+        ai_response = callGPT([{'role': 'system', 'content': prompt}], model=keyword_model)
         # Use json.loads for safer parsing of the response into a dictionary
         updated_keywords = json.loads(ai_response)
         return updated_keywords
