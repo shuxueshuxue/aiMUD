@@ -1,6 +1,301 @@
+# AIMUD - AI-Driven Interactive Fiction Game Engine
 # AIMUD，一个由 AI 驱动的互动小说游戏引擎
 
 ![|800](assets/seriousGameClassFinal.png)
+
+---
+
+## 🚀 Quick Start / 快速开始
+
+### Prerequisites / 前置要求
+
+- Python 3.11+
+- OpenRouter API key (or any OpenAI-compatible API)
+- Dependencies: `requests`, `networkx`
+
+### Installation / 安装
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd aiMUD
+
+# Install dependencies
+pip install requests networkx
+
+# Create config.json with your API credentials
+# 创建 config.json 文件并配置 API 密钥
+```
+
+### Configuration / 配置
+
+Create a `config.json` file in the root directory:
+
+```json
+{
+  "api_provider": "openrouter",
+  "api_endpoint": "https://openrouter.ai/api/v1/chat/completions",
+  "api_key": "your-api-key-here",
+  "models": {
+    "keyword_extraction": "anthropic/claude-sonnet-4.5",
+    "story_continuation": "google/gemini-2.5-pro",
+    "default": "anthropic/claude-sonnet-4.5"
+  },
+  "available_models": [
+    "anthropic/claude-sonnet-4.5",
+    "google/gemini-2.5-pro"
+  ],
+  "max_tokens": 4000
+}
+```
+
+**Supported API Providers:**
+- OpenRouter (recommended) - Access to multiple AI models
+- OpenAI - Direct OpenAI API
+- Anthropic - Direct Anthropic API
+- Any OpenAI-compatible API endpoint
+
+### Running the Game / 运行游戏
+
+**Terminal 1: Start Server / 启动服务器**
+```bash
+python3 server.py
+```
+
+**Terminal 2: Play Game / 开始游戏**
+```bash
+# Option 1: Watch automated 5-action demo
+python3 full_game_demo.py
+
+# Option 2: Play interactively with your own actions
+python3 interactive_test.py
+
+# Option 3: Use the basic test client
+python3 test_client.py
+```
+
+**First-time Setup: Register a User / 首次使用：注册用户**
+```bash
+python3 register_user.py
+```
+
+---
+
+## 🎮 Features / 功能特性
+
+### AI-Powered Story Generation / AI 驱动的故事生成
+- **Google Gemini 2.5 Pro**: Rich, cinematic storytelling with detailed descriptions
+- **Anthropic Claude Sonnet 4.5**: Intelligent keyword extraction and memory management
+- Real-time dynamic story continuation based on player actions
+
+### Multiplayer Support / 多人游戏支持
+- TCP-based client-server architecture
+- Real-time message broadcasting to all connected players
+- User authentication and account management
+- Shared game world with persistent state
+
+### Advanced Features / 高级特性
+- **Keyword Graph System**: AI-maintained knowledge graph of story elements
+- **Dynamic Context Windows**: Configurable text windows for different AI operations
+- **RAG-Enhanced**: Retrieval-Augmented Generation for consistent storytelling
+- **Universal API Support**: Works with any OpenAI-compatible API
+- **Robust JSON Parsing**: Handles markdown, code blocks, and verbose AI responses
+
+---
+
+## 🛠️ Technical Architecture / 技术架构
+
+### Game Flow / 游戏流程
+```
+Player Input → Keyword Spotting → Story Generation (LLM) →
+Keyword Extraction (LLM) → Broadcast to Players → Next Action
+```
+
+### File Structure / 文件结构
+```
+aiMUD/
+├── server.py              # Game server and core logic
+├── client.py              # Basic TCP client
+├── llm.py                 # LLM API integration
+├── keywords.py            # Keyword extraction and graph management
+├── config.json            # API configuration (not in git)
+├── game.txt               # Current game state (not in git)
+├── user.db                # User database (not in git)
+├── games/                 # Game templates
+│   └── WordLand.txt
+├── test_client.py         # Automated test client
+├── interactive_test.py    # Interactive play client
+├── full_game_demo.py      # Comprehensive demo
+└── register_user.py       # User registration utility
+```
+
+### AI Models Configuration / AI 模型配置
+
+The engine uses different models for different tasks:
+- **Story Continuation**: `google/gemini-2.5-pro` (configurable)
+- **Keyword Extraction**: `anthropic/claude-sonnet-4.5` (configurable)
+
+You can switch models by editing `config.json`.
+
+---
+
+## 📚 Example Usage / 使用示例
+
+### Example Player Actions / 玩家动作示例
+
+```
+> explore the dense forest
+> examine the ancient trees more closely
+> follow the babbling brook upstream
+> craft a wooden pickaxe
+> mine some stone
+> build a shelter near the brook
+> search for edible berries
+> write in my journal about today's adventure
+```
+
+### Example AI Response / AI 响应示例
+
+**Player Action**: "explore the dense forest"
+
+**AI Generated Story** (by Gemini 2.5 Pro):
+```
+With his pack firmly secured, Jeffry turned from the sun-drenched plains
+and strode toward the forest's edge, a formidable wall of shadow and deep
+green. Stepping under the boughs of the first ancient trees felt like entering
+another world. The brilliant sunlight was snuffed out, replaced by a cool,
+cathedral-like gloom where the air grew still and heavy with the scent of
+damp earth and pine.
+
+Deeper he ventured, his eyes adjusting to the dim light. Enormous, gnarled
+roots, slick with moss, coiled across the forest floor like sleeping serpents,
+and thick curtains of ivy cascaded down from a canopy so dense it was nearly
+a solid ceiling. It was a place of profound quiet and immense age, and with
+each step, Jeffry felt the thrill of the unknown, his explorer's heart beating
+in time with the ancient, slumbering pulse of the wilderness.
+```
+
+---
+
+## 🔧 API Integration / API 集成
+
+### OpenRouter Setup / OpenRouter 设置
+
+1. Sign up at [OpenRouter.ai](https://openrouter.ai/)
+2. Get your API key from the dashboard
+3. Add to `config.json`:
+```json
+{
+  "api_endpoint": "https://openrouter.ai/api/v1/chat/completions",
+  "api_key": "sk-or-v1-..."
+}
+```
+
+### Available Models / 可用模型
+
+**Recommended Models:**
+- `google/gemini-2.5-pro` - Best for story generation
+- `anthropic/claude-sonnet-4.5` - Best for keyword extraction
+- `openai/gpt-4-turbo` - Good all-around performance
+- `meta-llama/llama-3.1-70b` - Cost-effective alternative
+
+**Model Selection Tips:**
+- Use larger models for story generation (richer descriptions)
+- Use faster models for keyword extraction (efficiency)
+- Balance cost vs quality based on your needs
+
+---
+
+## 🎯 Game Design / 游戏设计
+
+### Creating a New Game / 创建新游戏
+
+Edit `game.txt` with your game configuration:
+
+```json
+{
+  "overall_context": "Game setting and rules",
+  "keywords": {
+    "keyword1": "description1",
+    "keyword2": "description2"
+  },
+  "progress": "Initial game state",
+  "text_window_size": 1000,
+  "word_search_depth": 2
+}
+```
+
+**Parameters:**
+- `overall_context`: Game world description and rules
+- `keywords`: Dictionary of important story elements
+- `progress`: Current story progress
+- `text_window_size`: Context window for AI (in characters)
+- `word_search_depth`: Keyword graph traversal depth (1-3)
+
+---
+
+## 🐛 Troubleshooting / 故障排除
+
+### Common Issues / 常见问题
+
+**"503 Service Unavailable"**
+- Check your API endpoint is accessible
+- Verify your API key is valid
+- Check your account has credits/quota
+
+**"JSON parsing error"**
+- This has been fixed with robust JSON extraction
+- If you still see errors, update to latest version
+
+**"Connection timeout"**
+- Increase timeout in client code
+- Check network connectivity
+- Verify server is running on correct port (12345)
+
+**"ModuleNotFoundError: networkx"**
+- Install missing dependency: `pip install networkx`
+
+---
+
+## 📊 Performance / 性能
+
+**Typical Response Times:**
+- Story Generation: 15-30 seconds (Gemini 2.5 Pro)
+- Keyword Extraction: 10-20 seconds (Claude Sonnet 4.5)
+- Total per action: ~25-50 seconds
+
+**Optimization Tips:**
+- Use faster models for quicker responses
+- Reduce `text_window_size` for faster processing
+- Set `word_search_depth=1` for simpler games
+- Consider caching common responses
+
+---
+
+## 🤝 Contributing / 贡献
+
+Contributions are welcome! Please feel free to:
+- Report bugs
+- Suggest features
+- Submit pull requests
+- Share your game designs
+
+---
+
+## 📜 License / 许可证
+
+[Add your license information here]
+
+---
+
+## 🌟 Acknowledgments / 致谢
+
+- Powered by OpenRouter for multi-model API access
+- Google Gemini 2.5 Pro for story generation
+- Anthropic Claude Sonnet 4.5 for keyword extraction
+- Built with Python, NetworkX, and TCP sockets
+
+---
 
 ### 游戏介绍
 
