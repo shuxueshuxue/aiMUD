@@ -44,18 +44,22 @@ def callGPT(messages: list, model: str = 'gpt-3.5-turbo') -> str:
         response.raise_for_status()  # Raises an HTTPError for bad responses
         # Parse the response JSON
         data = response.json()
-        if "gpt" in model:
-            # Extract the AI's response text and return it
+
+        # Try standard OpenAI/OpenRouter format first (most common)
+        try:
             ai_response = data['choices'][0]['message']['content']
-        elif 'claude' in model:
-            # Anthropic's response format
-            ai_response = " ".join([item['text'] for item in data['content'] if 'text' in item])
-            
+        except (KeyError, IndexError):
+            # Fallback to Anthropic's direct API format (if using Anthropic API directly)
+            try:
+                ai_response = " ".join([item['text'] for item in data['content'] if 'text' in item])
+            except (KeyError, TypeError):
+                return "Failed to extract AI's response from API."
+
         return ai_response
     except requests.RequestException as e:
         return f"An error occurred: {str(e)}"
-    except KeyError:
-        return "Failed to extract AI's response."
+    except KeyError as e:
+        return f"Failed to extract AI's response: {str(e)}"
 
 def continueStory(progress: str, general_styles: str, player: str, player_input: str, keywords: dict, model: str = 'claude-3-sonnet-20240229') -> str:
     # Create a rich contextual narrative with explicit instructions for the AI
