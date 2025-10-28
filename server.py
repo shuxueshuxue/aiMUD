@@ -88,6 +88,7 @@ def continue_story(user_input, user_name) -> str:
     full_progress = state["progress"]
     base_window_size = state.get("text_window_size", 1000)  # Base context window size
     word_search_depth = state.get("word_search_depth", 2)
+    model = state.get("model", "anthropic/claude-sonnet-4.5")  # Get model from game state
 
     # Coefficients for various uses of the window
     coeff_continuation = 1.0
@@ -109,7 +110,7 @@ def continue_story(user_input, user_name) -> str:
     relevant_keywords = spot_keywords(progress_for_keyword_spotting + " " + user_input, keywords, depth=word_search_depth, graph=keyword_graph)
 
     # Update progress and context using GPT model with filtered keywords
-    new_progress_segment = continueStory(progress_for_continuation, overall_context, user_name, user_input, {k: keywords[k] for k in relevant_keywords if k in keywords})
+    new_progress_segment = continueStory(progress_for_continuation, overall_context, user_name, user_input, {k: keywords[k] for k in relevant_keywords if k in keywords}, model)
     full_progress += " " + new_progress_segment  # Append new segment to full progress
 
     # Save the full progress back to state
@@ -126,14 +127,15 @@ def extract_key_words(new_progress_segment):
     overall_context = state["overall_context"]
     full_progress = state["progress"]
     base_window_size = state.get("text_window_size", 1000)  # Base context window size
-    
+    model = state.get("model", "anthropic/claude-sonnet-4.5")  # Get model from game state
+
     keyword_graph = create_graph(keywords, directed=False)
 
     # Re-run keyword spotting on the new progress segment
     new_relevant_keywords = spot_keywords(new_progress_segment, keywords, depth=2, graph=keyword_graph)
 
     # Extract and update keywords from the new story segment using the latest spotted keywords
-    new_keywords = extract_keywords({k: keywords[k] for k in new_relevant_keywords if k in keywords}, new_progress_segment)
+    new_keywords = extract_keywords({k: keywords[k] for k in new_relevant_keywords if k in keywords}, new_progress_segment, model)
     if new_keywords: 
         state["keywords"].update(new_keywords)
 

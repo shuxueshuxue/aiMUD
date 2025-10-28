@@ -68,14 +68,15 @@ def spot_keywords(text: str, keywords: dict, depth: int = 1, graph=None) -> set:
     return found_keys
 
 
-def extract_keywords(current_keywords: dict, text: str) -> dict:
+def extract_keywords(current_keywords: dict, text: str, model: str = 'anthropic/claude-sonnet-4.5') -> dict:
     """
     Leverages an external GPT model to analyze a text and update the current keywords dictionary based on GPT's response.
-    
+
     Args:
     current_keywords (dict): The current dictionary containing keywords and their descriptions.
     text (str): The text from which to extract and update keywords.
-    
+    model (str): The model to use for keyword extraction.
+
     Returns:
     dict: An updated dictionary with new or modified keywords.
     """
@@ -103,7 +104,7 @@ def extract_keywords(current_keywords: dict, text: str) -> dict:
     
     # Use the existing callGPT function to send the prompt and get the AI's response
     try:
-        ai_response = callGPT([{'role': 'system', 'content': prompt}])
+        ai_response = callGPT([{'role': 'system', 'content': prompt}], model)
         # Use json.loads for safer parsing of the response into a dictionary
         updated_keywords = json.loads(ai_response)
         return updated_keywords

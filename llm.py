@@ -3,27 +3,28 @@ import json
 
 '''
 available models:
-claude-3-haiku-20240307
-claude-3-sonnet-20240229
-gpt-3.5-turbo
-gpt-4-turbo
+anthropic/claude-sonnet-4.5
+google/gemini-2.5-pro
+(configured in config.json)
 '''
 
 
-def callGPT(messages: list, model: str = 'gpt-3.5-turbo') -> str:
+def callGPT(messages: list, model: str = 'anthropic/claude-sonnet-4.5') -> str:
     print(f"GPT called. model:{model}, message_length = {len(str(messages))}")
     print("---------------------------------")
     print(messages)
     print("---------------------------------")
     # URL of the AI endpoint
-    
+
     with open('config.json', 'r') as f:
         config = json.load(f)
     url = config['api_endpoint']
-    
+    api_key = config.get('api_key', '')
+
     # Define the headers for the HTTP request
     headers = {
         'Content-Type': 'application/json',
+        'Authorization': f'Bearer {api_key}',
     }
     
     # Prepare the JSON body for the POST request
@@ -35,25 +36,32 @@ def callGPT(messages: list, model: str = 'gpt-3.5-turbo') -> str:
     
     # Try to send the POST request
     try:
+        print(f"Sending request to: {url}")
+        print(f"Headers: {headers}")
+        print(f"Body: {json.dumps(body, indent=2)}")
+
         response = requests.post(url, headers=headers, json=body)
-        # print(response.text)
+
+        print(f"Response status: {response.status_code}")
+        print(f"Response body: {response.text[:500]}")  # Print first 500 chars
+
         response.raise_for_status()  # Raises an HTTPError for bad responses
         # Parse the response JSON
         data = response.json()
-        if "gpt" in model:
-            # Extract the AI's response text and return it
-            ai_response = data['choices'][0]['message']['content']
-        elif 'claude' in model:
-            # Anthropic's response format
-            ai_response = " ".join([item['text'] for item in data['content'] if 'text' in item])
-            
+
+        # This API uses OpenAI format for all models
+        ai_response = data['choices'][0]['message']['content']
+
         return ai_response
     except requests.RequestException as e:
+        print(f"Request error: {str(e)}")
         return f"An error occurred: {str(e)}"
-    except KeyError:
-        return "Failed to extract AI's response."
+    except KeyError as e:
+        print(f"Parsing error: {str(e)}")
+        print(f"Response data: {data}")
+        return f"Failed to extract AI's response: {str(e)}"
 
-def continueStory(progress: str, general_styles: str, player: str, player_input: str, keywords: dict, model: str = 'claude-3-sonnet-20240229') -> str:
+def continueStory(progress: str, general_styles: str, player: str, player_input: str, keywords: dict, model: str = 'anthropic/claude-sonnet-4.5') -> str:
     # Create a rich contextual narrative with explicit instructions for the AI
     context = f"{general_styles} In the latest part of the story, {progress} The main character, {player}, "
     context += f"now decides to: {player_input}. This is a game setting; focus on detailed, cinematic descriptions. "
