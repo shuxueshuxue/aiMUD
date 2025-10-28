@@ -3,6 +3,8 @@ import json
 
 '''
 available models:
+anthropic/claude-sonnet-4.5
+google/gemini-2.5-pro
 claude-3-haiku-20240307
 claude-3-sonnet-20240229
 gpt-3.5-turbo
@@ -20,17 +22,19 @@ def callGPT(messages: list, model: str = 'gpt-3.5-turbo') -> str:
     with open('config.json', 'r') as f:
         config = json.load(f)
     url = config['api_endpoint']
-    
+    api_key = config.get('api_key', '')
+
     # Define the headers for the HTTP request
     headers = {
         'Content-Type': 'application/json',
+        'Authorization': f'Bearer {api_key}'
     }
-    
+
     # Prepare the JSON body for the POST request
     body = {
         'model': model,
         'messages': messages,
-        'max_tokens': 4000
+        'max_tokens': config.get('max_tokens', 4000)
     }
     
     # Try to send the POST request
